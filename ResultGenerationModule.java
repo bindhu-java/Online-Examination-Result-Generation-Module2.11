@@ -2,9 +2,9 @@ import java.util.*;
 
 // Student Data Model
 class Student {
-    int id;
-    String name;
-    double score;
+    private int id;
+    private String name;
+    private double score;
 
     public Student(int id, String name, double score) {
         this.id = id;
@@ -12,38 +12,69 @@ class Student {
         this.score = score;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    @Override
     public String toString() {
         return String.format("ID: %-5d | Name: %-10s | Score: %.2f", id, name, score);
     }
 }
 
-public class ResultGenerationModule {
+// Result Generation Module
+class ResultModule {
 
-    private Map<Integer, Student> studentMap = new HashMap<>();
-    private List<Student> studentList = new ArrayList<>();
+    private Map<Integer, Student> studentMap;
+    private List<Student> studentList;
+
+    public ResultModule() {
+        studentMap = new HashMap<>();
+        studentList = new ArrayList<>();
+    }
 
     // Add Student
-    public void addStudentRecord(int id, String name, double score) {
+    public void addStudent(int id, String name, double score) {
         Student s = new Student(id, name, score);
         studentMap.put(id, s);
         studentList.add(s);
+        System.out.println("Student record added successfully.");
     }
 
-    // QuickSort
-    public void sortByScore(int low, int high) {
+    // Display Students
+    public void displayStudents() {
+        if (studentList.isEmpty()) {
+            System.out.println("No records found.");
+            return;
+        }
+
+        System.out.println("\n----- Student Results -----");
+        for (Student s : studentList) {
+            System.out.println(s);
+        }
+    }
+
+    // QuickSort for Ranking
+    public void quickSort(int low, int high) {
         if (low < high) {
-            int pi = partition(low, high);
-            sortByScore(low, pi - 1);
-            sortByScore(pi + 1, high);
+            int pivotIndex = partition(low, high);
+            quickSort(low, pivotIndex - 1);
+            quickSort(pivotIndex + 1, high);
         }
     }
 
     private int partition(int low, int high) {
-        double pivot = studentList.get(high).score;
+
+        double pivot = studentList.get(high).getScore();
         int i = low - 1;
 
         for (int j = low; j < high; j++) {
-            if (studentList.get(j).score >= pivot) {
+
+            if (studentList.get(j).getScore() >= pivot) {
                 i++;
                 Collections.swap(studentList, i, j);
             }
@@ -53,116 +84,124 @@ public class ResultGenerationModule {
         return i + 1;
     }
 
-    // Binary Search
-    public int binarySearchScore(double target) {
+    // Search by ID using HashMap
+    public void searchById(int id) {
+
+        Student s = studentMap.get(id);
+
+        if (s != null) {
+            System.out.println("Student Found:");
+            System.out.println(s);
+        } else {
+            System.out.println("Student not found.");
+        }
+    }
+
+    // Binary Search by Score
+    public void searchByScore(double score) {
+
+        quickSort(0, studentList.size() - 1);
+
         int low = 0;
         int high = studentList.size() - 1;
 
         while (low <= high) {
+
             int mid = (low + high) / 2;
-            double midScore = studentList.get(mid).score;
+            double midScore = studentList.get(mid).getScore();
 
-            if (midScore == target) {
-                return mid;
+            if (midScore == score) {
+                System.out.println("Student Found:");
+                System.out.println(studentList.get(mid));
+                return;
             }
 
-            if (midScore < target) {
+            if (midScore < score)
                 high = mid - 1;
-            } else {
+            else
                 low = mid + 1;
-            }
         }
 
-        return -1;
+        System.out.println("Score not found.");
     }
+}
 
-    // Display Students
-    public void displayAll() {
-        System.out.println("\n--- Student Result Records ---");
-        for (Student s : studentList) {
-            System.out.println(s);
-        }
-    }
+// Main Class
+public class OnlineExamResultSystem {
 
     public static void main(String[] args) {
 
-        ResultGenerationModule module = new ResultGenerationModule();
         Scanner sc = new Scanner(System.in);
+        ResultModule module = new ResultModule();
 
-        // Preloaded data
-        module.addStudentRecord(101, "Alice", 88.5);
-        module.addStudentRecord(102, "Bob", 95.0);
-        module.addStudentRecord(103, "Charlie", 72.0);
-        module.addStudentRecord(104, "Diana", 91.5);
+        // Sample Data
+        module.addStudent(101, "Alice", 88.5);
+        module.addStudent(102, "Bob", 95.0);
+        module.addStudent(103, "Charlie", 72.0);
+        module.addStudent(104, "Diana", 91.5);
 
-        while (true) {
+        int choice;
 
-            System.out.println("\n--- EXAM RESULT MODULE ---");
+        do {
+
+            System.out.println("\n==== Online Examination Result Module ====");
             System.out.println("1. Add Student");
-            System.out.println("2. Generate Ranks (Sort)");
-            System.out.println("3. Search by ID");
-            System.out.println("4. Search by Score");
-            System.out.println("5. Display All");
+            System.out.println("2. Generate Rank (Sort by Score)");
+            System.out.println("3. Search Student by ID");
+            System.out.println("4. Search Student by Score");
+            System.out.println("5. Display All Results");
             System.out.println("6. Exit");
+            System.out.print("Enter choice: ");
 
-            System.out.print("Select choice: ");
-            int choice = sc.nextInt();
+            choice = sc.nextInt();
 
             switch (choice) {
 
                 case 1:
-                    System.out.print("Enter ID: ");
+                    System.out.print("Enter Student ID: ");
                     int id = sc.nextInt();
+
                     System.out.print("Enter Name: ");
                     String name = sc.next();
+
                     System.out.print("Enter Score: ");
                     double score = sc.nextDouble();
-                    module.addStudentRecord(id, name, score);
+
+                    module.addStudent(id, name, score);
                     break;
 
                 case 2:
-                    module.sortByScore(0, module.studentList.size() - 1);
-                    module.displayAll();
+                    module.quickSort(0, module.studentList.size() - 1);
+                    System.out.println("Ranking generated successfully.");
+                    module.displayStudents();
                     break;
 
                 case 3:
                     System.out.print("Enter ID to search: ");
                     int searchId = sc.nextInt();
-                    Student s = module.studentMap.get(searchId);
-
-                    if (s != null) {
-                        System.out.println("Found: " + s);
-                    } else {
-                        System.out.println("Student not found");
-                    }
+                    module.searchById(searchId);
                     break;
 
                 case 4:
                     System.out.print("Enter Score to search: ");
                     double searchScore = sc.nextDouble();
-
-                    module.sortByScore(0, module.studentList.size() - 1);
-                    int idx = module.binarySearchScore(searchScore);
-
-                    if (idx != -1) {
-                        System.out.println("Found: " + module.studentList.get(idx));
-                    } else {
-                        System.out.println("Score not found");
-                    }
+                    module.searchByScore(searchScore);
                     break;
 
                 case 5:
-                    module.displayAll();
+                    module.displayStudents();
                     break;
 
                 case 6:
-                    System.out.println("Exiting...");
-                    System.exit(0);
+                    System.out.println("Exiting system...");
                     break;
 
                 default:
-                    System.out.println("Invalid choice");
+                    System.out.println("Invalid choice.");
             }
-        }
+
+        } while (choice != 6);
+
+        sc.close();
     }
 }
