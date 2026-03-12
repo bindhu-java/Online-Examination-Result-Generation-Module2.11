@@ -2,6 +2,7 @@ import java.util.*;
 
 // Student Data Model
 class Student {
+
     private int id;
     private String name;
     private double score;
@@ -20,7 +21,6 @@ class Student {
         return score;
     }
 
-    @Override
     public String toString() {
         return String.format("ID: %-5d | Name: %-10s | Score: %.2f", id, name, score);
     }
@@ -29,30 +29,29 @@ class Student {
 // Result Generation Module
 class ResultModule {
 
-    private Map<Integer, Student> studentMap;
-    private List<Student> studentList;
+    private Map<Integer, Student> studentMap = new HashMap<>();
+    private List<Student> studentList = new ArrayList<>();
 
-    public ResultModule() {
-        studentMap = new HashMap<>();
-        studentList = new ArrayList<>();
+    // Getter method to access studentList
+    public List<Student> getStudentList() {
+        return studentList;
     }
 
     // Add Student
     public void addStudent(int id, String name, double score) {
+
         Student s = new Student(id, name, score);
         studentMap.put(id, s);
         studentList.add(s);
-        System.out.println("Student record added successfully.");
+
+        System.out.println("Student added successfully.");
     }
 
     // Display Students
     public void displayStudents() {
-        if (studentList.isEmpty()) {
-            System.out.println("No records found.");
-            return;
-        }
 
         System.out.println("\n----- Student Results -----");
+
         for (Student s : studentList) {
             System.out.println(s);
         }
@@ -60,10 +59,13 @@ class ResultModule {
 
     // QuickSort for Ranking
     public void quickSort(int low, int high) {
+
         if (low < high) {
-            int pivotIndex = partition(low, high);
-            quickSort(low, pivotIndex - 1);
-            quickSort(pivotIndex + 1, high);
+
+            int pi = partition(low, high);
+
+            quickSort(low, pi - 1);
+            quickSort(pi + 1, high);
         }
     }
 
@@ -75,12 +77,14 @@ class ResultModule {
         for (int j = low; j < high; j++) {
 
             if (studentList.get(j).getScore() >= pivot) {
+
                 i++;
                 Collections.swap(studentList, i, j);
             }
         }
 
         Collections.swap(studentList, i + 1, high);
+
         return i + 1;
     }
 
@@ -111,6 +115,7 @@ class ResultModule {
             double midScore = studentList.get(mid).getScore();
 
             if (midScore == score) {
+
                 System.out.println("Student Found:");
                 System.out.println(studentList.get(mid));
                 return;
@@ -132,6 +137,7 @@ public class OnlineExamResultSystem {
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
+
         ResultModule module = new ResultModule();
 
         // Sample Data
@@ -144,21 +150,22 @@ public class OnlineExamResultSystem {
 
         do {
 
-            System.out.println("\n==== Online Examination Result Module ====");
+            System.out.println("\n===== ONLINE EXAM RESULT MODULE =====");
             System.out.println("1. Add Student");
-            System.out.println("2. Generate Rank (Sort by Score)");
-            System.out.println("3. Search Student by ID");
-            System.out.println("4. Search Student by Score");
-            System.out.println("5. Display All Results");
+            System.out.println("2. Generate Rank (Sort)");
+            System.out.println("3. Search by ID");
+            System.out.println("4. Search by Score");
+            System.out.println("5. Display All");
             System.out.println("6. Exit");
-            System.out.print("Enter choice: ");
 
+            System.out.print("Enter choice: ");
             choice = sc.nextInt();
 
             switch (choice) {
 
                 case 1:
-                    System.out.print("Enter Student ID: ");
+
+                    System.out.print("Enter ID: ");
                     int id = sc.nextInt();
 
                     System.out.print("Enter Name: ");
@@ -171,32 +178,40 @@ public class OnlineExamResultSystem {
                     break;
 
                 case 2:
-                    module.quickSort(0, module.studentList.size() - 1);
+
+                    module.quickSort(0, module.getStudentList().size() - 1);
                     System.out.println("Ranking generated successfully.");
                     module.displayStudents();
                     break;
 
                 case 3:
+
                     System.out.print("Enter ID to search: ");
                     int searchId = sc.nextInt();
+
                     module.searchById(searchId);
                     break;
 
                 case 4:
+
                     System.out.print("Enter Score to search: ");
                     double searchScore = sc.nextDouble();
+
                     module.searchByScore(searchScore);
                     break;
 
                 case 5:
+
                     module.displayStudents();
                     break;
 
                 case 6:
+
                     System.out.println("Exiting system...");
                     break;
 
                 default:
+
                     System.out.println("Invalid choice.");
             }
 
